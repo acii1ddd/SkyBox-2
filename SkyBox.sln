@@ -1,0 +1,64 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.API", "SkyBox.API\SkyBox.API.csproj", "{157384BB-1DA1-427D-B763-5DAD8FF9B5F3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.Domain", "SkyBox.Domain\SkyBox.Domain.csproj", "{8C0C78BA-0CAC-4643-BC59-249C7AF0A6BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.DAL", "SkyBox.DAL\SkyBox.DAL.csproj", "{AF44C69A-8CCF-4CED-B553-EEAECCDF2CF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.BLL", "SkyBox.BLL\SkyBox.BLL.csproj", "{7497EA59-3E64-4660-BC9F-09E01CB1FE69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AF0EE9D6-E1DA-4256-B899-1424DA33B4B6}"
+	ProjectSection(SolutionItems) = preProject
+		compose.yaml = compose.yaml
+		.env = .env
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.Configuration", "SkyBox.Configuration\SkyBox.Configuration.csproj", "{BFDD5CBD-605D-4D34-A954-AC462E0C355D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.Mapping.Tests", "SkyBox.Mapping.Tests\SkyBox.Mapping.Tests.csproj", "{160659F3-6D39-4EBA-9B62-80D9BB94EBA2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B3857E44-C783-439A-8515-000F1107CB67}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkyBox.BLL.Tests", "SkyBox.BLL.Tests\SkyBox.BLL.Tests.csproj", "{B1FCFCDE-D0A9-40EB-9C54-AD0B8B411774}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{157384BB-1DA1-427D-B763-5DAD8FF9B5F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157384BB-1DA1-427D-B763-5DAD8FF9B5F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157384BB-1DA1-427D-B763-5DAD8FF9B5F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157384BB-1DA1-427D-B763-5DAD8FF9B5F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C0C78BA-0CAC-4643-BC59-249C7AF0A6BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C0C78BA-0CAC-4643-BC59-249C7AF0A6BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C0C78BA-0CAC-4643-BC59-249C7AF0A6BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C0C78BA-0CAC-4643-BC59-249C7AF0A6BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF44C69A-8CCF-4CED-B553-EEAECCDF2CF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF44C69A-8CCF-4CED-B553-EEAECCDF2CF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF44C69A-8CCF-4CED-B553-EEAECCDF2CF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF44C69A-8CCF-4CED-B553-EEAECCDF2CF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7497EA59-3E64-4660-BC9F-09E01CB1FE69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7497EA59-3E64-4660-BC9F-09E01CB1FE69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7497EA59-3E64-4660-BC9F-09E01CB1FE69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7497EA59-3E64-4660-BC9F-09E01CB1FE69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BFDD5CBD-605D-4D34-A954-AC462E0C355D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFDD5CBD-605D-4D34-A954-AC462E0C355D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFDD5CBD-605D-4D34-A954-AC462E0C355D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFDD5CBD-605D-4D34-A954-AC462E0C355D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{160659F3-6D39-4EBA-9B62-80D9BB94EBA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{160659F3-6D39-4EBA-9B62-80D9BB94EBA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{160659F3-6D39-4EBA-9B62-80D9BB94EBA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{160659F3-6D39-4EBA-9B62-80D9BB94EBA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B1FCFCDE-D0A9-40EB-9C54-AD0B8B411774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1FCFCDE-D0A9-40EB-9C54-AD0B8B411774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1FCFCDE-D0A9-40EB-9C54-AD0B8B411774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1FCFCDE-D0A9-40EB-9C54-AD0B8B411774}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{160659F3-6D39-4EBA-9B62-80D9BB94EBA2} = {B3857E44-C783-439A-8515-000F1107CB67}
+		{B1FCFCDE-D0A9-40EB-9C54-AD0B8B411774} = {B3857E44-C783-439A-8515-000F1107CB67}
+	EndGlobalSection
+EndGlobal

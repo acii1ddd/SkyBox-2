@@ -1,0 +1,6 @@
+/docker/minio/
+/docker/postgres/
+/.vs/
+/.idea/
+bin/
+obj/

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SkyBox.Configuration\SkyBox.Configuration.csproj" />
+      <ProjectReference Include="..\SkyBox.DAL\SkyBox.DAL.csproj" />
+      <ProjectReference Include="..\SkyBox.Domain\SkyBox.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="AWSSDK.S3" Version="4.0.0-preview.5" />
+      <PackageReference Include="FluentResults" Version="3.16.0" />
+    </ItemGroup>
+
+</Project>

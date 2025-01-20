@@ -1,0 +1,49 @@
+﻿version: "3.9"
+
+services:
+  skybox.api:
+    image: skybox.api
+    build:
+      context: .
+      dockerfile: SkyBox.API/Dockerfile
+    depends_on:
+      - postgres
+    networks:
+      - skybox
+        
+  postgres:
+    container_name: postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - ./docker/postgres:/var/lib/postgresql/data
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    networks:
+      - skybox
+  
+  minio:
+    container_name: minio
+    image: minio/minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server --console-address ":9001" /data
+    
+    # local dir ./docker/minio in project 
+    volumes:
+      - ./docker/minio:/data
+    
+    # 9000 - api for accessing minio; 9001 - web admin console
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    networks:
+      - skybox
+
+networks:
+  skybox:
