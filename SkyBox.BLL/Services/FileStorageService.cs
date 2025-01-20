@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Amazon.S3;
 using Amazon.S3.Model;
 using FluentResults;
@@ -9,14 +10,16 @@ namespace SkyBox.BLL.Services;
 
 public class FileStorageService : IFileStorageService
 {
-    private const string FileWithIdNotFoundPattern = "Файл с Id {0} не найден.";
-    
     private readonly IAmazonS3 _s3Client;
     private readonly IFileStorageRepository _fileStorageRepository;
     private readonly ILogger<FileStorageService> _logger;
-
-    private const string BucketName = "user-files";
     
+    private const string FileWithIdNotFoundPattern = "Файл с Id {0} не найден.";
+    private const string UserFilesNotFoundPattern = "{0}: Пользователь с Id {1} не имеет файлов в базе данных.";
+    
+    private const string BucketName = "user-files";
+    private const string TempUserId = "dd67edab-1135-42e7-9047-331e33875f37";
+
     public FileStorageService(IAmazonS3 s3Client, IFileStorageRepository fileStorageRepository, ILogger<FileStorageService> logger)
     {
         _s3Client = s3Client;
@@ -24,15 +27,18 @@ public class FileStorageService : IFileStorageService
         _logger = logger;
     }
 
+    private static string GetKey(Guid userId, Guid fileId)
+    { 
+        return $"{userId.ToString()}/{fileId.ToString()}";
+    }
+    
     public async Task<Result<StorageFile>> UploadFileAsync(Stream fileStream, string fileName, string mimeType)
     {
         try
         {
-            const string tempUserId = "dd67edab-1135-42e7-9047-331e33875f37";
             // userId брать при авторизации и передавать в этот метод
-            var userId = Guid.Parse(tempUserId);
             var fileId = Guid.NewGuid();
-            var key = $"{userId.ToString()}/{fileId.ToString()}";
+            var key = GetKey(Guid.Parse(TempUserId), fileId);
             
             //Размер необходимо зафиксировать до того, как будет вычитан поток
             //который освободится после прочтения
@@ -57,14 +63,16 @@ public class FileStorageService : IFileStorageService
                 Length = streamLength,
                 MimeType = mimeType,
                 Extension = Path.GetExtension(fileName)
-                                ?? throw new Exception("Error with getting extension. Path is null!"),
+                                ?? throw new Exception("Ошибка получения расширения файла. Path is null!"),
                 StoragePath = $"{BucketName}/{key}",
                 UploadDate = DateTimeOffset.UtcNow,
                 LastAccessedDate = DateTimeOffset.MinValue,
-                UserId = userId // Брать guid авторизированного типа
+                UserId = Guid.Parse(TempUserId) // Брать guid авторизированного типа
             };
             
-            _logger.LogInformation($"File {fileName} uploaded successfully.");
+            _logger.LogInformation("{Source}: Файл {fileName} загружен успешно.", 
+                nameof(FileStorageService), fileId);
+            
             return await _fileStorageRepository.AddAsync(storageFile);
         }
         catch (Exception e)
@@ -108,6 +116,9 @@ public class FileStorageService : IFileStorageService
                 ms.Seek(0, SeekOrigin.Begin);
             }
             // возвращаем окрытый поток ms
+            _logger.LogInformation("{Source}: Файл {fileId} получен успешно.", 
+                nameof(FileStorageService), fileId);
+            
             return (ms, fileInfo);
             // responseStream.DisposeAsync()
             // file.Dispose()
@@ -121,8 +132,68 @@ public class FileStorageService : IFileStorageService
         }
     }
 
+    public async Task<Result<StorageFile>> DeleteFileAsync(Guid fileId)
+    {
+        try
+        {
+            var fileInfo = await _fileStorageRepository.GetByIdAsync(fileId);
+            
+            if (fileInfo is null)
+            {
+                _logger.LogError("{Source}: Файл с Id {FileId} не найден в базе данных",
+                    nameof(FileStorageService),
+                    fileId);
+                
+                return Result.Fail(new Error(string.Format(FileWithIdNotFoundPattern, fileId)));
+            }
+            
+            _ = await _s3Client.DeleteObjectAsync(
+                BucketName, 
+                GetKey(Guid.Parse(TempUserId), fileId)
+            );
+            
+            var deletedFile = await _fileStorageRepository.DeleteAsync(fileId);
+            
+            _logger.LogInformation("{Source}: Файл {fileId} удален успешно.", 
+                nameof(FileStorageService), fileId);
+            
+            // deletedFile не может быть null, так как
+            // уже проверили существование объекта в GetByIdAsync
+            return deletedFile!;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "{Source}: Ошибка во время получения файла по Id.", 
+                nameof(FileStorageService));
+            
+            return Result.Fail(new Error(e.Message));
+        }
+    }
 
-    // получить файлы для определенного юзера
-    // получить ссылку на файл для скачивания (можно по Id файла по сути)
-    // удалить файл по Id
+    public async Task<Result<ImmutableList<StorageFile>>> GetByUserIdAsync(Guid userId)
+    {
+        try
+        {
+            var userFiles = await _fileStorageRepository.GetByUserIdAsync(userId);
+            var files = userFiles.ToImmutableList();
+
+            if (!files.IsEmpty)
+            {
+                return files;
+            }
+            
+            _logger.LogError("{Source}: Пользователь с Id {userId} не имеет файлов в базе данных.", 
+                nameof(FileStorageService), userId);
+
+            return Result.Fail(new Error(string.Format(UserFilesNotFoundPattern, 
+                nameof(FileStorageService), userId.ToString())));
+        }        
+        catch (Exception e)
+        {
+            _logger.LogError(e, "{Source}: Ошибка во время получения файлов пользователя" +
+                " c Id {userId}.", userId, nameof(FileStorageService));
+            
+            return Result.Fail(new Error(e.Message));
+        }
+    }
 }

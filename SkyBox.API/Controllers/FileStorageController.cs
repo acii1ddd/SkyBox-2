@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SkyBox.API.Contracts.StorageFiles;
 using SkyBox.Domain.Abstractions.Files;
+using SkyBox.Domain.Models;
 
 namespace SkyBox.API.Controllers;
 
@@ -17,12 +18,8 @@ public class FileStorageController : ControllerBase
         _fileStorageService = fileStorageService;
         _mapper = mapper;
     }
-
-    /// <summary>
-    /// Загрузить файл 
-    /// </summary>
-    /// <param name="file"></param>
-    [HttpPost("upload")]
+    
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetStorageFileResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> UploadFile(IFormFile file)
@@ -40,23 +37,60 @@ public class FileStorageController : ControllerBase
         return Ok(result);
     } // stream.DisposeAsync();
 
-    [HttpGet("download/{fileId:Guid}")]
+    [HttpGet("{fileId:Guid}/download")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(FileStreamResult))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetFile([FromRoute] Guid fileId)
     {
-        var result = await _fileStorageService.GetByIdAsync(fileId);
+        var fileStreamResult = await _fileStorageService.GetByIdAsync(fileId);
         
-        if (result.IsFailed)
+        if (fileStreamResult.IsFailed)
         {
-            return BadRequest(result.Errors);
+            return BadRequest(fileStreamResult.Errors);
         }
 
-        var fileStreamResult = File(
-            result.Value.fileStream, 
-            result.Value.storageFile.MimeType, 
-            result.Value.storageFile.Name
+        var result = File(
+            fileStreamResult.Value.fileStream, 
+            fileStreamResult.Value.storageFile.MimeType, 
+            fileStreamResult.Value.storageFile.Name
         );
-        return fileStreamResult;
+        
+        return result;
+    }
+    
+    // Берем из параметров запроса (FromQuery) когда нужна фильтрация,
+    // сортировки или поиск. Когда ресурс, к которому осуществляется обращение,
+    // остаётся тот же, но с определёнными условиями.
+    // files?userId=value
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<GetStorageFileResponse>))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetUserFiles([FromQuery] Guid userId)
+    {
+        var userFiles = await _fileStorageService.GetByUserIdAsync(userId);
+        
+        if (userFiles.IsFailed)
+        {
+            return BadRequest(userFiles.Errors);
+        }
+
+        var result = _mapper.Map<IEnumerable<StorageFile>>(userFiles.Value);
+        return Ok(result);
+    }
+    
+    [HttpDelete("{fileId:Guid}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(GetStorageFileResponse))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteFile([FromRoute] Guid fileId)
+    {
+        var deletedFile = await _fileStorageService.DeleteFileAsync(fileId);
+        
+        if (deletedFile.IsFailed)
+        {
+            return BadRequest(deletedFile.Errors);
+        }
+
+        var result = _mapper.Map<GetStorageFileResponse>(deletedFile.Value);
+        return Ok(result);
     }
 }

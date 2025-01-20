@@ -45,11 +45,27 @@ public class FileStorageRepository : IFileStorageRepository
         );
     }
 
+    
+    /// <summary>
+    /// Получение всех файлов пользователя 
+    /// </summary>
+    /// <param name="userId"></param>
+    /// <returns>Список файлов либо пустой список</returns>
+    public async Task<IEnumerable<StorageFile>> GetByUserIdAsync(Guid userId)
+    {
+        return _mapper.Map<IEnumerable<StorageFile>>(
+            await _dbContext.StorageFiles
+                .AsNoTracking()
+                .Where(file => file.UserEntityId == userId)
+                .ToListAsync()
+        );
+    }
+
     /// <summary>
     /// Получение файла по id
     /// </summary>
     /// <param name="id"></param>
-    /// <returns>Файл по заданному id либо null, если не было такого файла</returns>
+    /// <returns>Файл по-заданному id либо null, если не было такого файла</returns>
     public async Task<StorageFile?> GetByIdAsync(Guid id)
     {
         return _mapper.Map<StorageFile>(
