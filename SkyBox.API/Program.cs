@@ -6,11 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using SkyBox.API.Contracts;
 using SkyBox.API.Contracts.ContractProfiles.ConfigurationDI;
+using SkyBox.API.Middlewares;
 using SkyBox.BLL.ConfigurationDI;
 using SkyBox.DAL;
 using SkyBox.DAL.ConfigurationDI;
 using SkyBox.DAL.Context;
 using SkyBox.FileStorageConfiguration;
+using SkyBox.FileStorageConfiguration.Auth;
 
 namespace SkyBox.API;
 
@@ -78,6 +80,9 @@ public class Program
         builder.Services.RegisterDalProfiles();
         builder.Services.RegisterContractProfiles();
 
+        // Settings
+        builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
+        
         var app = builder.Build();
         
         using (var scope = app.Services.CreateScope())
@@ -85,14 +90,14 @@ public class Program
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             DbInitializer.Initialize(context);
         }
-
+        
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        
         app.UseHttpsRedirection();
 
         app.UseAuthorization();
@@ -100,6 +105,9 @@ public class Program
         app.UseAuthentication();
 
         app.MapControllers();
+        
+        // custom middlewares
+        app.UseMiddleware<JwtAuthMiddleware>();
         
         app.Run();
     }

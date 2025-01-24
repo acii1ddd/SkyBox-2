@@ -1,4 +1,6 @@
-namespace SkyBox.Domain.Models;
+using SkyBox.Domain.Models.User;
+
+namespace SkyBox.Domain.Models.File;
 
 public class StorageFile
 {
@@ -55,5 +57,5 @@ public class StorageFile
     /// <summary>
     /// Владелец файла
     /// </summary>
-    public User? User { get; set; }
+    public ShortUser? ShortUser { get; set; }
 }

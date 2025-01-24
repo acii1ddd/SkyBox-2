@@ -1,4 +1,5 @@
 using SkyBox.Domain.Models;
+using SkyBox.Domain.Models.File;
 
 namespace SkyBox.Domain.Abstractions.Files;
 

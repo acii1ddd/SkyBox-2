@@ -9,7 +9,7 @@ public class UserEntity
     
     public string UserName { get; set; } = string.Empty;
     
-    public string Password { get; set; } = string.Empty;
+    public string PasswordHash { get; set; } = string.Empty;
     
     public string Email { get; set; } = string.Empty;
     
@@ -29,7 +29,7 @@ public class UserEntityConfiguration : IEntityTypeConfiguration<UserEntity>
             .IsRequired()
             .HasMaxLength(MAX_LENGTH);
 
-        builder.Property(x => x.Password)
+        builder.Property(x => x.PasswordHash)
             .IsRequired()
             .HasMaxLength(MAX_LENGTH);
         

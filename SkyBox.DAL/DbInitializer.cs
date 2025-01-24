@@ -12,13 +12,13 @@ public static class DbInitializer
         {
             return;
         }
-
+    
         //context.Database.Migrate();
         var user = new UserEntity
         {
             Id = Guid.NewGuid(),
             UserName = "user",
-            Password = "123",
+            PasswordHash = "123",
             Email = "user@email.com"
         };
         

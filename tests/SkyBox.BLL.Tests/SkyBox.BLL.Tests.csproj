@@ -22,7 +22,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SkyBox.BLL\SkyBox.BLL.csproj" />
+      <ProjectReference Include="..\..\SkyBox.BLL\SkyBox.BLL.csproj" />
+      <ProjectReference Include="..\..\SkyBox.Domain\SkyBox.Domain.csproj" />
     </ItemGroup>
 
 </Project>

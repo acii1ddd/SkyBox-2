@@ -2,11 +2,11 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Logging;
 using Moq;
-using SkyBox.BLL.Services;
+using SkyBox.BLL.Services.Files;
 using SkyBox.Domain.Abstractions.Files;
-using SkyBox.Domain.Models;
+using SkyBox.Domain.Models.File;
 
-namespace SkyBox.BLL.Tests;
+namespace SkyBox.BLL.Tests.File;
 
 public class FileStorageTests
 {

@@ -5,8 +5,9 @@ using FluentResults;
 using Microsoft.Extensions.Logging;
 using SkyBox.Domain.Abstractions.Files;
 using SkyBox.Domain.Models;
+using SkyBox.Domain.Models.File;
 
-namespace SkyBox.BLL.Services;
+namespace SkyBox.BLL.Services.Files;
 
 public class FileStorageService : IFileStorageService
 {

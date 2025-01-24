@@ -4,6 +4,7 @@ using SkyBox.DAL.Context;
 using SkyBox.DAL.Entities_dbDTOs_;
 using SkyBox.Domain.Abstractions.Files;
 using SkyBox.Domain.Models;
+using SkyBox.Domain.Models.File;
 
 namespace SkyBox.DAL.Repositories;
 
