@@ -2,13 +2,13 @@ using SkyBox.Domain.Models.User;
 
 namespace SkyBox.API.Contracts.Auth;
 
-public record SignInResponse
+public class SignInResponse
 {
-    public Guid UserId { get; set; }
+    public Guid UserId { get; init; }
     
-    public UserRole UserRole { get; set; }
+    public UserRole UserRole { get; init; }
     
-    public string Token { get; set; } = string.Empty;
+    public string Token { get; init; } = string.Empty;
     
-    public DateTime Expires { get; set; }
+    public DateTime Expires { get; init; }
 }

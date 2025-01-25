@@ -19,7 +19,7 @@ public class FileStorageService : IFileStorageService
     private const string UserFilesNotFoundPattern = "{0}: Пользователь с Id {1} не имеет файлов в базе данных.";
     
     private const string BucketName = "user-files";
-    private const string TempUserId = "dd67edab-1135-42e7-9047-331e33875f37";
+    private const string TempUserId = "387a29db-2975-4882-a61e-e8e332a74041";
 
     public FileStorageService(IAmazonS3 s3Client, IFileStorageRepository fileStorageRepository, ILogger<FileStorageService> logger)
     {

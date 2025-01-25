@@ -2,7 +2,7 @@ using AutoMapper;
 using SkyBox.API.Contracts.Auth;
 using SkyBox.Domain.Models.User;
 
-namespace SkyBox.API.Contracts.ContractProfiles;
+namespace SkyBox.API.Contracts.ContractProfiles.Auth;
 
 public class SignInContractProfile : Profile
 {

@@ -74,14 +74,14 @@ public class Program
         //             .AllowAnyHeader());
         // });
         
+        // Settings
+        builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
+        
         //DI
         builder.Services.RegisterRepositories();
         builder.Services.RegisterServices();
         builder.Services.RegisterDalProfiles();
         builder.Services.RegisterContractProfiles();
-
-        // Settings
-        builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
         
         var app = builder.Build();
         

@@ -1,4 +1,5 @@
 using SkyBox.BLL.Services.Users;
+using SkyBox.Domain.Abstractions.Users;
 using Xunit.Abstractions;
 
 namespace SkyBox.BLL.Tests.User;
@@ -8,9 +9,9 @@ public class PasswordHashServiceTests
     private readonly PasswordHashService _passwordHashService;
     private readonly ITestOutputHelper _testOutputHelper;
 
-    public PasswordHashServiceTests(PasswordHashService passwordHashService, ITestOutputHelper testOutputHelper)
+    public PasswordHashServiceTests(ITestOutputHelper testOutputHelper)
     {
-        _passwordHashService = passwordHashService;
+        _passwordHashService = new PasswordHashService();
         _testOutputHelper = testOutputHelper;
     }
 

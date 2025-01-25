@@ -7,5 +7,4 @@ public class UserSignInDetails
     public UserRole UserRole { get; set; }
     
     public string PasswordHash { get; set; } = string.Empty;
-    
 }

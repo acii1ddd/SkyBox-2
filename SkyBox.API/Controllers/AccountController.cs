@@ -25,7 +25,7 @@ public class AccountController : ControllerBase
     /// </summary>
     /// <param name="signInRequest"></param>
     [HttpPost("sign-in")]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthTokenModel))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SignInResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> SignIn([FromBody] SignInRequest signInRequest)
     {
