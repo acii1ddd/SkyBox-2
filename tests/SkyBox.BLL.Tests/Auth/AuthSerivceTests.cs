@@ -13,13 +13,12 @@ public class AuthSerivceTests
     
     private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<IPasswordHashService> _passwordHashServiceMock;
-    private readonly AuthSettings _authSettings;
-    
+
     public AuthSerivceTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
         _passwordHashServiceMock = new Mock<IPasswordHashService>();
-        _authSettings = new AuthSettings
+        var authSettings = new AuthSettings
         {
             Internal = new InternalAuthSettings
             {
@@ -33,7 +32,7 @@ public class AuthSerivceTests
         _authService = new AuthService(
             _userRepositoryMock.Object, 
             _passwordHashServiceMock.Object,
-            Options.Create(_authSettings)
+            Options.Create(authSettings)
         );
     }
 

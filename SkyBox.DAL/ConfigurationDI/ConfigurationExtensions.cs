@@ -8,16 +8,19 @@ namespace SkyBox.DAL.ConfigurationDI;
 
 public static class ConfigurationExtensions
 {
-    public static void RegisterRepositories(this IServiceCollection services)
+    public static IServiceCollection RegisterRepositories(this IServiceCollection services)
     {
         services.AddScoped<IFileStorageRepository, FileStorageRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        return services;
     }
 
-    public static void RegisterDalProfiles(this IServiceCollection services)
+    public static IServiceCollection RegisterDalProfiles(this IServiceCollection services)
     {
         services.AddAutoMapper(config =>
             config.AddMaps(typeof(StorageFileProfile).Assembly)
         );
+
+        return services;
     }
 }

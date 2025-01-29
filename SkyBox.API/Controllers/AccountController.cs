@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkyBox.API.Contracts.Auth;
 using SkyBox.Domain.Abstractions.Auth;
@@ -24,6 +25,7 @@ public class AccountController : ControllerBase
     /// Авторизация пользователя
     /// </summary>
     /// <param name="signInRequest"></param>
+    [AllowAnonymous]
     [HttpPost("sign-in")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SignInResponse))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -41,15 +43,13 @@ public class AccountController : ControllerBase
         return Ok(result);
     }
     
-    /// <summary>
-    /// Регистрация пользователя
-    /// </summary>
-    /// <param name="signInModel"></param>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthTokenModel))]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task Register([FromBody] SignInModel signInModel)
-    {
-        throw new NotImplementedException("This functionality is not implemented");
-    }
+    // [AllowAnonymous]
+    // [Authorize("Default")]
+    // [HttpPost]
+    // [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthTokenModel))]
+    // [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    // public async Task Register([FromBody] SignInModel signInModel)
+    // {
+    //     throw new NotImplementedException("This functionality is not implemented");
+    // }
 }

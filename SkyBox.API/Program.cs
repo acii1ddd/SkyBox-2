@@ -1,24 +1,29 @@
+using System.Security.Claims;
+using System.Text;
 using Amazon;
-using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.S3;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SkyBox.API.Contracts;
+using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using SkyBox.API.Contracts.ContractProfiles.ConfigurationDI;
-using SkyBox.API.Middlewares;
+using SkyBox.API.Extensions;
 using SkyBox.BLL.ConfigurationDI;
 using SkyBox.DAL;
 using SkyBox.DAL.ConfigurationDI;
 using SkyBox.DAL.Context;
+using SkyBox.Domain.Models.User;
 using SkyBox.FileStorageConfiguration;
 using SkyBox.FileStorageConfiguration.Auth;
+using ILogger = Serilog.ILogger;
 
 namespace SkyBox.API;
 
 public class Program
 {
-    private const string CorsPolicyName = "CorsPolicy";
+    //private const string CorsPolicyName = "CorsPolicy";
     
     public static void Main(string[] args)
     {
@@ -75,13 +80,63 @@ public class Program
         // });
         
         // Settings
-        builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("Auth"));
+        var authSection = builder.Configuration.GetSection("Auth");
+        builder.Services.Configure<AuthSettings>(authSection);
         
-        //DI
-        builder.Services.RegisterRepositories();
-        builder.Services.RegisterServices();
-        builder.Services.RegisterDalProfiles();
-        builder.Services.RegisterContractProfiles();
+        // DI
+        builder.Services
+            .RegisterRepositories()
+            .RegisterServices()
+            .RegisterDalProfiles()
+            .RegisterContractProfiles()
+            .AddSwagger(); // jwt token in header
+
+        // Authentication
+        var authSettings = authSection.Get<AuthSettings>();
+        if (authSettings is null)
+        {
+            throw new InvalidOperationException("Missing authentication settings. Check appsettings.json Auth section.");
+        }
+        
+        builder.Services
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authSettings.Internal.Secret)),
+                    ValidateIssuer = true,
+                    ValidIssuer = authSettings.Internal.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = authSettings.Internal.Audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero // убираем доп погрешность в 5 минут
+                };
+            });
+
+        builder.Services.AddAuthorization(authOptions =>
+        {
+            authOptions.AddPolicy(
+                nameof(UserRole.Default),
+                policy =>
+                {
+                    policy.RequireAuthenticatedUser();
+                    policy.RequireClaim(ClaimTypes.Role, nameof(UserRole.Default));
+                }
+            );
+        });
+        
+        // Serilog logging
+        builder.Host.UseSerilog((context, _, configuration) =>
+        {
+            configuration.Enrich.FromLogContext();
+            configuration.ReadFrom.Configuration(context.Configuration);
+        });
         
         var app = builder.Build();
         
@@ -98,17 +153,26 @@ public class Program
             app.UseSwaggerUI();
         }
         
+        // custom middlewares
+        //app.UseMiddleware<JwtAuthMiddleware>();
+        
         app.UseHttpsRedirection();
-
+        
+        // first
+        app.UseAuthentication();
+        // second
         app.UseAuthorization();
         
-        app.UseAuthentication();
-
         app.MapControllers();
         
-        // custom middlewares
-        app.UseMiddleware<JwtAuthMiddleware>();
-        
-        app.Run();
+        var logger = app.Services.GetRequiredService<ILogger<Program>>();
+        try
+        {
+            app.Run();
+        }
+        catch (Exception e)
+        {
+            logger.LogCritical(e, "{Source}: Unhandled exception", e.Source);
+        }
     }
 }

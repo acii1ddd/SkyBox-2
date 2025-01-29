@@ -1,4 +1,5 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkyBox.API.Contracts.StorageFiles;
 using SkyBox.Domain.Abstractions.Files;
@@ -6,6 +7,7 @@ using SkyBox.Domain.Models.File;
 
 namespace SkyBox.API.Controllers;
 
+[Authorize("Default")]
 [ApiController]
 [Route("api/files")]
 public class FileStorageController : ControllerBase

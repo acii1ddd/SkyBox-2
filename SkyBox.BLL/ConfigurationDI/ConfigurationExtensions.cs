@@ -11,10 +11,11 @@ namespace SkyBox.BLL.ConfigurationDI;
 
 public static class ConfigurationExtensions
 {
-    public static void RegisterServices(this IServiceCollection services)
+    public static IServiceCollection RegisterServices(this IServiceCollection services)
     {
         services.AddScoped<IFileStorageService, FileStorageService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IPasswordHashService, PasswordHashService>();
+        return services;
     }
 }
