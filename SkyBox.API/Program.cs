@@ -102,7 +102,7 @@ public class Program
             .AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;    
             })
             .AddJwtBearer(options =>
             {
@@ -121,12 +121,28 @@ public class Program
 
         builder.Services.AddAuthorization(authOptions =>
         {
+            // authOptions.AddPolicy(
+            //     nameof(UserRole.Default),
+            //     policy =>
+            //     {
+            //         policy.RequireAuthenticatedUser();
+            //         policy.RequireAssertion(context =>
+            //         {
+            //             var roleClaim = context.User.FindFirst(ClaimTypes.Role)?.Value;
+            //             
+            //             // вернем true (пропускаем), если роль будет либо default, либо admin
+            //             return roleClaim is nameof(UserRole.Default) or nameof(UserRole.Admin);
+            //         });
+            //     }
+            // );
             authOptions.AddPolicy(
-                nameof(UserRole.Default),
+                nameof(UserRole.Admin),
                 policy =>
                 {
                     policy.RequireAuthenticatedUser();
-                    policy.RequireClaim(ClaimTypes.Role, nameof(UserRole.Default));
+                    
+                    // для политики Admin пропускает только админа
+                    policy.RequireClaim(ClaimTypes.Role, nameof(UserRole.Admin));
                 }
             );
         });

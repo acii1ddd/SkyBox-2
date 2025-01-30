@@ -28,17 +28,19 @@ public class FileStorageTests
     }
 
     [Fact]
-    public async Task GetByIdAsync_Should_Return_FailResult()
+    public async Task GetByIdAsync_Should_Return_FailResult_WithNull()
     {
         // Arrange
         var fileId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        
         _fileStorageRepositoryMock
             .Setup(repo => repo.GetByIdAsync(fileId))
             .ReturnsAsync((StorageFile?)null);
 
         // Act
-        var result = await _fileStorageService.GetByIdAsync(fileId);
-
+        var result = await _fileStorageService.GetByIdAsync(fileId, userId);
+        
         // Assert
         const string fileWithIdNotFoundPattern = "Файл с Id {0} не найден.";
         Assert.True(result.IsFailed);
@@ -47,10 +49,44 @@ public class FileStorageTests
     }
     
     [Fact]
-    public async Task GetByIdAsync_Should_Return_FailResult_With_Exception()
+    public async Task GetByIdAsync_Should_Return_FailResult_But_NotARealOwnerRequest()
     {
         // Arrange
         var fileId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        
+        var storageFile = new StorageFile
+        {
+            Id = fileId,
+            BucketName = "test",
+            Name = "test",
+            MimeType = "text/plain",
+            Extension = ".txt",
+            StoragePath = "test",
+            UserId = userId
+        };
+        
+        _fileStorageRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(fileId))
+            .ReturnsAsync(storageFile);
+        
+        // Act
+        var result = await _fileStorageService.GetByIdAsync(fileId, Guid.NewGuid());
+        
+        // Assert
+        const string errorMessage = "Доступ к этому файлу запрещен.";
+        Assert.True(result.IsFailed);
+        Assert.Single(result.Errors);
+        Assert.Equal(errorMessage, result.Errors[0].Message);
+    }
+    
+    [Fact]
+    public async Task GetByIdAsync_Should_Return_FailResult_With_Exception_But_OwnerRequest()
+    {
+        // Arrange
+        var fileId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
+        
         const string exceptionMessage = "S3 Exception"; 
         
         var storageFile = new StorageFile
@@ -61,7 +97,7 @@ public class FileStorageTests
             MimeType = "text/plain",
             Extension = ".txt",
             StoragePath = "test",
-            UserId = Guid.NewGuid()
+            UserId = userId
         };
         
         _fileStorageRepositoryMock
@@ -77,7 +113,7 @@ public class FileStorageTests
             .ThrowsAsync(new Exception(exceptionMessage));
         
         // Act
-        var result = await _fileStorageService.GetByIdAsync(fileId);
+        var result = await _fileStorageService.GetByIdAsync(fileId, userId);
         
         // Assert
         Assert.True(result.IsFailed);
@@ -86,10 +122,11 @@ public class FileStorageTests
     }
     
     [Fact]
-    public async Task GetByIdAsync_Should_Return_SuccessResult()
+    public async Task GetByIdAsync_Should_Return_SuccessResult_But_OwnerRequest()
     {
         // Arrange
         var fileId = Guid.NewGuid();
+        var userId = Guid.NewGuid();
         
         var storageFile = new StorageFile
         {
@@ -99,7 +136,7 @@ public class FileStorageTests
             MimeType = "text/plain",
             Extension = ".txt",
             StoragePath = "test",
-            UserId = Guid.NewGuid()
+            UserId = userId
         };
         var responseStream = new MemoryStream([1, 2, 3]);
         
@@ -118,7 +155,7 @@ public class FileStorageTests
             });
         
         // Act
-        var result = await _fileStorageService.GetByIdAsync(fileId);
+        var result = await _fileStorageService.GetByIdAsync(fileId, userId);
 
         // Assert
         Assert.True(result.IsSuccess);

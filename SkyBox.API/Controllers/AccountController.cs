@@ -10,7 +10,7 @@ namespace SkyBox.API.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AccountController : ControllerBase
+public class AccountController : BaseController
 {
     private readonly IAuthService _authService;
     private readonly IMapper _mapper;

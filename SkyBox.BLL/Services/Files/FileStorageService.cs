@@ -4,7 +4,6 @@ using Amazon.S3.Model;
 using FluentResults;
 using Microsoft.Extensions.Logging;
 using SkyBox.Domain.Abstractions.Files;
-using SkyBox.Domain.Models;
 using SkyBox.Domain.Models.File;
 
 namespace SkyBox.BLL.Services.Files;
@@ -19,7 +18,7 @@ public class FileStorageService : IFileStorageService
     private const string UserFilesNotFoundPattern = "{0}: Пользователь с Id {1} не имеет файлов в базе данных.";
     
     private const string BucketName = "user-files";
-    private const string TempUserId = "387a29db-2975-4882-a61e-e8e332a74041";
+    //private const string TempUserId = "387a29db-2975-4882-a61e-e8e332a74041";
 
     public FileStorageService(IAmazonS3 s3Client, IFileStorageRepository fileStorageRepository, ILogger<FileStorageService> logger)
     {
@@ -33,13 +32,12 @@ public class FileStorageService : IFileStorageService
         return $"{userId.ToString()}/{fileId.ToString()}";
     }
     
-    public async Task<Result<StorageFile>> UploadFileAsync(Stream fileStream, string fileName, string mimeType)
+    public async Task<Result<StorageFile>> UploadFileAsync(Stream fileStream, string fileName, string mimeType, Guid userId)
     {
         try
         {
-            // userId брать при авторизации и передавать в этот метод
             var fileId = Guid.NewGuid();
-            var key = GetKey(Guid.Parse(TempUserId), fileId);
+            var key = GetKey(userId, fileId);
             
             //Размер необходимо зафиксировать до того, как будет вычитан поток
             //который освободится после прочтения
@@ -68,7 +66,7 @@ public class FileStorageService : IFileStorageService
                 StoragePath = $"{BucketName}/{key}",
                 UploadDate = DateTimeOffset.UtcNow,
                 LastAccessedDate = DateTimeOffset.MinValue,
-                UserId = Guid.Parse(TempUserId) // Брать guid авторизированного типа
+                UserId = userId
             };
             
             _logger.LogInformation("{Source}: Файл {fileName} загружен успешно.", 
@@ -85,7 +83,7 @@ public class FileStorageService : IFileStorageService
         }
     }
 
-    public async Task<Result<(Stream fileStream, StorageFile storageFile)>> GetByIdAsync(Guid fileId)
+    public async Task<Result<(Stream fileStream, StorageFile storageFile)>> GetByIdAsync(Guid fileId, Guid userId)
     {
         try
         {
@@ -98,6 +96,20 @@ public class FileStorageService : IFileStorageService
                     fileId);
                 
                 return Result.Fail(new Error(string.Format(FileWithIdNotFoundPattern, fileId)));
+            }
+
+            // если кто-то узнал fileId и пытается под своим
+            // аккаунтом скачать файл, который ему не принадлежит
+            if (fileInfo.UserId != userId)
+            {
+                _logger.LogError("{Source}: Файл с Id {FileId} не принадлежит пользователю {FakeUserId}. " +
+                                 "Владелец файла: {OriginalUser}",
+                    nameof(FileStorageService),
+                    fileId,
+                    userId,
+                    fileInfo.UserId);
+                
+                return Result.Fail(new Error("Доступ к этому файлу запрещен."));
             }
             
             using var file = await _s3Client.GetObjectAsync
@@ -133,7 +145,7 @@ public class FileStorageService : IFileStorageService
         }
     }
 
-    public async Task<Result<StorageFile>> DeleteFileAsync(Guid fileId)
+    public async Task<Result<StorageFile>> DeleteFileAsync(Guid fileId, Guid userId)
     {
         try
         {
@@ -148,9 +160,22 @@ public class FileStorageService : IFileStorageService
                 return Result.Fail(new Error(string.Format(FileWithIdNotFoundPattern, fileId)));
             }
             
+            // удаляет ли пользователь с Id userId именно свой файл
+            if (fileInfo.UserId != userId)
+            {
+                _logger.LogError("{Source}: Файл с Id {FileId} не принадлежит пользователю {FakeUserId}. " +
+                                 "Владелец файла: {OriginalUser}",
+                    nameof(FileStorageService),
+                    fileId,
+                    userId,
+                    fileInfo.UserId);
+                
+                return Result.Fail(new Error("Доступ к этому файлу запрещен."));
+            }
+            
             _ = await _s3Client.DeleteObjectAsync(
                 BucketName, 
-                GetKey(Guid.Parse(TempUserId), fileId)
+                GetKey(userId, fileId)
             );
             
             var deletedFile = await _fileStorageRepository.DeleteAsync(fileId);
@@ -183,7 +208,7 @@ public class FileStorageService : IFileStorageService
                 return files;
             }
             
-            _logger.LogError("{Source}: Пользователь с Id {userId} не имеет файлов в базе данных.", 
+            _logger.LogWarning("{Source}: Пользователь с Id {userId} не имеет файлов в базе данных.", 
                 nameof(FileStorageService), userId);
 
             return Result.Fail(new Error(string.Format(UserFilesNotFoundPattern, 

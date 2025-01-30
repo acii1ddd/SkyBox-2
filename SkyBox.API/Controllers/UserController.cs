@@ -1,9 +1,9 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SkyBox.Domain.Models;
-using SkyBox.Domain.Models.User;
 
 namespace SkyBox.API.Controllers;
 
+[Authorize("Admin")]
 [Route("api/user")]
 public class UserController : ControllerBase
 {
