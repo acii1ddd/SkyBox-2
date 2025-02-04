@@ -56,6 +56,26 @@ public class AccountController : BaseController
         var result = _mapper.Map<SignInResponse>(authTokenModelResult.Value.AuthAccessTokenModel);
         return Ok(result);
     }
+
+    // [AllowAnonymous]
+    // [HttpGet("refresh-tokens")]
+    // [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SignInResponse))]
+    // public async Task<IActionResult> RefreshTokens()
+    // {
+    //     var refreshToken = Request.Cookies["RefreshToken"];
+    //     
+    //     // посмотреть есть ли в redis запись с ключом refreshToken
+    //     bool isExists;
+    //     if (isExists)
+    //     {
+    //         // отдать значение (guid соответствующего пользователя)
+    //     }
+    //     else
+    //     {
+    //         //        
+    //     }
+    // }
+    
     
     // [AllowAnonymous]
     // [Authorize("Default")]

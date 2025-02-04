@@ -22,8 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\SkyBox.API\SkyBox.API.csproj" />
-      <ProjectReference Include="..\..\SkyBox.Domain\SkyBox.Domain.csproj" />
+      <ProjectReference Include="..\..\src\SkyBox.API\SkyBox.API.csproj" />
     </ItemGroup>
 
 </Project>

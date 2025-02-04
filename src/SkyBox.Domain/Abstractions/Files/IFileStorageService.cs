@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using FluentResults;
-using SkyBox.Domain.Models;
 using SkyBox.Domain.Models.File;
 
 namespace SkyBox.Domain.Abstractions.Files;

@@ -24,8 +24,4 @@
         <Using Include="Xunit"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\SkyBox.API\SkyBox.API.csproj" />
-    </ItemGroup>
-
 </Project>
