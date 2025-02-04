@@ -43,13 +43,19 @@ public class AuthService : IAuthService
             return Result.Fail(new Error("Неверный пароль."));
         }
 
-        var token = AuthTokenGenerator.GenerateToken(
+        var accessTokenModel = AuthTokenGenerator.GenerateAccessToken(
             new GenerateTokenPayload
         {   
             UserId = userSignInDetails.UserId,
             UserRole = userSignInDetails.UserRole,
         }, _authSettings.Internal);
         
-        return token;
+        var refreshToken = AuthTokenGenerator.GenerateRefreshToken();
+        
+        return new AuthTokenModel
+        {
+            AuthAccessTokenModel = accessTokenModel, 
+            RefreshToken = refreshToken
+        };
     }
 }

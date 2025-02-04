@@ -69,7 +69,7 @@ public class Program
             var credentials = new BasicAWSCredentials(awsOptions.AccessKey, awsOptions.SecretKey);
             return new AmazonS3Client(credentials, s3Config);
         });
-        
+
         // builder.Services.AddCors(options =>
         // {
         //     options.AddPolicy(CorsPolicyName, corsPolicyBuilder => 

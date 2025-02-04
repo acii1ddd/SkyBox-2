@@ -130,7 +130,7 @@ public class AuthSerivceTests
         Assert.Empty(authTokenModelResult.Errors);
         Assert.NotNull(authTokenModelResult.Value);
         
-        Assert.Equal(authTokenModelResult.Value.UserId, userSignInDetails.UserId);
-        Assert.Equal(authTokenModelResult.Value.UserRole, userSignInDetails.UserRole);
+        Assert.Equal(authTokenModelResult.Value.AuthAccessTokenModel.UserId, userSignInDetails.UserId);
+        Assert.Equal(authTokenModelResult.Value.AuthAccessTokenModel.UserRole, userSignInDetails.UserRole);
     }
 }

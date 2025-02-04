@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SkyBox.API.Contracts.Auth;
 using SkyBox.Domain.Abstractions.Auth;
-using SkyBox.Domain.Models.Auth;
 using SkyBox.Domain.Models.User;
 
 namespace SkyBox.API.Controllers;
@@ -36,10 +35,25 @@ public class AccountController : BaseController
         
         if (authTokenModelResult.IsFailed)
         {
+            // с ошибкой - объект BadRequestObjectResult, а просто вот так 
+            // BadRequest() - BadRequestResult
             return BadRequest(authTokenModelResult.Errors);
         }
 
-        var result = _mapper.Map<SignInResponse>(authTokenModelResult.Value);
+        var authTokenModel = authTokenModelResult.Value;
+        
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            // СДЕЛАТЬ ВРЕМЯ БОЛЬШЕ
+            Expires = DateTimeOffset.UtcNow.AddMinutes(15)
+        };
+        
+        Response.Cookies.Append("RefreshToken", authTokenModel.RefreshToken, cookieOptions);
+        
+        var result = _mapper.Map<SignInResponse>(authTokenModelResult.Value.AuthAccessTokenModel);
         return Ok(result);
     }
     

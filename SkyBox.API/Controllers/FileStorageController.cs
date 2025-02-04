@@ -108,4 +108,22 @@ public class FileStorageController : BaseController
         var result = _mapper.Map<GetStorageFileResponse>(deletedFile.Value);
         return Ok(result);
     }
+    
+    // не воркает ссылка при переходе 
+    [HttpGet("{fileId:Guid}/url")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(string))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetSharedUrl([FromRoute] Guid fileId)
+    {
+        var urlResult = await _fileStorageService.GetSharedUrlAsync(fileId, AuthorizedUserId);
+        
+        if (urlResult.IsFailed)
+        {
+            return BadRequest(urlResult.Errors);
+        }
+        
+        // string
+        return Ok(urlResult.Value);
+    }
 }

@@ -8,13 +8,13 @@ using SkyBox.Domain.Models.File;
 
 namespace SkyBox.BLL.Tests.File;
 
-public class FileStorageTests
+public class GetByIdAsyncTests
 {
     private readonly FileStorageService _fileStorageService;
     private readonly Mock<IFileStorageRepository> _fileStorageRepositoryMock;
     private readonly Mock<IAmazonS3> _s3ClientMock;
 
-    public FileStorageTests()
+    public GetByIdAsyncTests()
     {
         _fileStorageRepositoryMock = new Mock<IFileStorageRepository>();
         _s3ClientMock = new Mock<IAmazonS3>();

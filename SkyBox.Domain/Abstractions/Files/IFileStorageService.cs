@@ -14,4 +14,6 @@ public interface IFileStorageService
     public Task<Result<ImmutableList<StorageFile>>> GetByUserIdAsync(Guid userId);
 
     public Task<Result<StorageFile>> DeleteFileAsync(Guid fileId, Guid userId);
+
+    public Task<Result<string>> GetSharedUrlAsync(Guid fileId, Guid userId);
 }

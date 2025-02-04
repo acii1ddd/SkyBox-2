@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using SkyBox.Domain.Models.Auth;
@@ -9,7 +10,7 @@ namespace SkyBox.BLL.Services.Auth;
 
 public static class AuthTokenGenerator
 {
-    public static AuthTokenModel GenerateToken(GenerateTokenPayload payload, InternalAuthSettings authSettings)
+    public static AuthAccessTokenModel GenerateAccessToken(GenerateTokenPayload payload, InternalAuthSettings authSettings)
     {
         var expires = DateTimeOffset.UtcNow.AddMinutes(authSettings.LifeTime);
         
@@ -37,12 +38,23 @@ public static class AuthTokenGenerator
         
         var token = tokenHandler.WriteToken(securityToken);
 
-        return new AuthTokenModel
+        return new AuthAccessTokenModel
         {
             UserId = payload.UserId,
-            Token = token,
+            AccessToken = token,
             Expires = expires.UtcDateTime,
             UserRole = payload.UserRole,
         };
+    }
+
+    public static string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        
+        using (var generator = RandomNumberGenerator.Create())
+        {
+            generator.GetBytes(randomNumber); // fill array with bytes
+            return Convert.ToBase64String(randomNumber);
+        }
     }
 }

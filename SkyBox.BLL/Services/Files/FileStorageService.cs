@@ -222,4 +222,63 @@ public class FileStorageService : IFileStorageService
             return Result.Fail(new Error(e.Message));
         }
     }
+    
+    // не воркает ссылка при переходе 
+    public async Task<Result<string>> GetSharedUrlAsync(Guid fileId, Guid userId)
+    {
+        try
+        {
+            var fileInfo = await _fileStorageRepository.GetByIdAsync(fileId);
+            
+            if (fileInfo is null)
+            {
+                _logger.LogError("{Source}: Файл с Id {FileId} не найден в базе данных",
+                    nameof(FileStorageService),
+                    fileId);
+                
+                return Result.Fail(new Error(string.Format(FileWithIdNotFoundPattern, fileId)));
+            }
+
+            // если кто-то узнал fileId и пытается под своим
+            // аккаунтом скачать файл, который ему не принадлежит
+            if (fileInfo.UserId != userId)
+            {
+                _logger.LogError("{Source}: Файл с Id {FileId} не принадлежит пользователю {FakeUserId}. " +
+                                 "Владелец файла: {OriginalUser}",
+                    nameof(FileStorageService),
+                    fileId,
+                    userId,
+                    fileInfo.UserId);
+                
+                return Result.Fail(new Error("Доступ к этому файлу запрещен."));
+            }
+
+            var expires = DateTimeOffset.UtcNow.AddMinutes(60);
+            var sharedUrl = await _s3Client.GetPreSignedURLAsync(
+                new GetPreSignedUrlRequest
+                {
+                    BucketName = BucketName,
+                    Key = GetKey(userId, fileId),
+                    Expires = expires.UtcDateTime
+                }
+            );
+
+            if (sharedUrl is null)
+            {
+                return Result.Fail(new Error("Ссылка для скачивания файла пуста."));
+            }
+            
+            _logger.LogInformation("{Source}: Ссылка для скачивания файла {fileId} создана успешно.", 
+                nameof(FileStorageService), fileId);
+            
+            return sharedUrl;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "{Source}: Ошибка во время получения ссылки для скачивания файла.", 
+                nameof(FileStorageService));
+            
+            return Result.Fail(new Error(e.Message));
+        }
+    }
 }

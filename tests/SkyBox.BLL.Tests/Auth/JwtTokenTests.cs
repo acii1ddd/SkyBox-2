@@ -33,11 +33,11 @@ public class JwtTokenTests
     }
 
     [Fact]
-    public void GenerateTokenTest()
+    public void GenerateAccessTokenTest()
     {
         var userId = Guid.NewGuid();
             
-        var authTokenModel = AuthTokenGenerator.GenerateToken(new GenerateTokenPayload
+        var authTokenModel = AuthTokenGenerator.GenerateAccessToken(new GenerateTokenPayload
         {
             UserId = userId,
             UserRole = UserRole.Default
@@ -46,12 +46,12 @@ public class JwtTokenTests
         Assert.NotNull(authTokenModel);
         Assert.Equal(authTokenModel.UserId, userId);
         Assert.Equal(UserRole.Default, authTokenModel.UserRole);
-        Assert.NotNull(authTokenModel.Token);
+        Assert.NotNull(authTokenModel.AccessToken);
         Assert.Equal(authTokenModel.Expires.ToString("hh:mm"),
             DateTimeOffset.UtcNow.AddMinutes(_authSettings.Internal.LifeTime).UtcDateTime.ToString("hh:mm"));
         
         _testOutputHelper.WriteLine(authTokenModel.UserId.ToString());
-        _testOutputHelper.WriteLine(authTokenModel.Token);
+        _testOutputHelper.WriteLine(authTokenModel.AccessToken);
         _testOutputHelper.WriteLine(authTokenModel.Expires.ToString(CultureInfo.CurrentCulture));
         _testOutputHelper.WriteLine(authTokenModel.UserRole.ToString());
     }
@@ -61,7 +61,7 @@ public class JwtTokenTests
     {
         var userId = Guid.NewGuid();
 
-        var authTokenModel = AuthTokenGenerator.GenerateToken(new GenerateTokenPayload
+        var authTokenModel = AuthTokenGenerator.GenerateAccessToken(new GenerateTokenPayload
         {
             UserId = userId,
             UserRole = UserRole.Default
@@ -78,7 +78,7 @@ public class JwtTokenTests
         };
         
         var validationResult = await tokenHandler.ValidateTokenAsync(
-            authTokenModel.Token, 
+            authTokenModel.AccessToken, 
             parameters
         );
         
@@ -91,17 +91,17 @@ public class JwtTokenTests
     {
         var userId = Guid.NewGuid();
 
-        var authTokenModel = AuthTokenGenerator.GenerateToken(new GenerateTokenPayload
+        var authTokenModel = AuthTokenGenerator.GenerateAccessToken(new GenerateTokenPayload
         {
             UserId = userId,
             UserRole = UserRole.Default
         }, _authSettings.Internal);
 
         // update token to invalid
-        var authTokenArray = authTokenModel.Token.ToCharArray();
+        var authTokenArray = authTokenModel.AccessToken.ToCharArray();
         authTokenArray[0] = '1';
         var newToken = authTokenArray.ToString();
-        authTokenModel.Token = newToken!;
+        authTokenModel.AccessToken = newToken!;
         
         var tokenHandler = new JsonWebTokenHandler();
 
@@ -114,10 +114,20 @@ public class JwtTokenTests
         };
         
         var validationResult = await tokenHandler.ValidateTokenAsync(
-            authTokenModel.Token, 
+            authTokenModel.AccessToken, 
             parameters
         );
         
         Assert.False(validationResult.IsValid);
+    }
+    
+    [Fact]
+    public void GenerateRefreshTokenTest()
+    {
+        var refreshToken = AuthTokenGenerator.GenerateRefreshToken();
+        
+        // Assert
+        Assert.NotNull(refreshToken);
+        _testOutputHelper.WriteLine(refreshToken);
     }
 }

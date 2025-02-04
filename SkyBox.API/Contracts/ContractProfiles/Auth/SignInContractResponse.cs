@@ -8,6 +8,6 @@ public class SignInContractResponse : Profile
 {
     public SignInContractResponse()
     {
-        CreateMap<AuthTokenModel, SignInResponse>();
+        CreateMap<AuthAccessTokenModel, SignInResponse>();
     }
 }

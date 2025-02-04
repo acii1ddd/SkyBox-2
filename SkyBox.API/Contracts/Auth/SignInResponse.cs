@@ -8,7 +8,7 @@ public class SignInResponse
     
     public UserRole UserRole { get; init; }
     
-    public string Token { get; init; } = string.Empty;
+    public string AccessToken { get; init; } = string.Empty;
     
     public DateTime Expires { get; init; }
 }
