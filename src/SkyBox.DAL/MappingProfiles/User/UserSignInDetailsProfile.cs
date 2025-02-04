@@ -2,11 +2,11 @@ using AutoMapper;
 using SkyBox.DAL.Entities_dbDTOs_;
 using SkyBox.Domain.Models.User;
 
-namespace SkyBox.DAL.MappingProfiles;
+namespace SkyBox.DAL.MappingProfiles.User;
 
-public class UserProfile : Profile
+public class UserSignInDetailsProfile : Profile
 {
-    public UserProfile()
+    public UserSignInDetailsProfile()
     {
         CreateMap<UserEntity, UserSignInDetails>()
             .ForMember(dest => dest.UserId, opt 

@@ -1,3 +1,4 @@
+using Amazon.Runtime.Internal.Util;
 using AutoMapper;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
@@ -6,6 +7,8 @@ using Moq;
 using SkyBox.API.Contracts.Auth;
 using SkyBox.API.Controllers;
 using SkyBox.Domain.Abstractions.Auth;
+using SkyBox.Domain.Abstractions.Cache;
+using SkyBox.Domain.Abstractions.Jwt;
 using SkyBox.Domain.Models.Auth;
 using SkyBox.Domain.Models.User;
 
@@ -17,14 +20,21 @@ public class AccountControllerTests
     private readonly Mock<IMapper> _mapperMock;
     private readonly AccountController _accountController;
     private readonly DefaultHttpContext _httpContext;
+    private readonly Mock<IJwtService> _jwtService;
 
     public AccountControllerTests()
     {
+        _jwtService = new Mock<IJwtService>();
         _authServiceMock = new Mock<IAuthService>();
         _mapperMock = new Mock<IMapper>();
         _httpContext = new DefaultHttpContext();
         
-        _accountController = new AccountController(_authServiceMock.Object, _mapperMock.Object);
+        
+        _accountController = new AccountController(
+            _authServiceMock.Object, 
+            _mapperMock.Object, 
+            _jwtService.Object
+        );
 
         _accountController.ControllerContext = new ControllerContext
         {

@@ -22,14 +22,15 @@ public class AuthService : IAuthService
         _userRepository = userRepository;
         _passwordHashService = passwordHashService;
         _authSettings = authOptions?.Value
-                        ?? throw new Exception("Секция с настройками аутентификации в конфигурационном файле некорректна.");
+                        ?? throw new ArgumentNullException(nameof(authOptions),
+                            "Секция с настройками аутентификации в конфигурационном файле некорректна.");
     }
 
     public async Task<Result<AuthTokenModel>> SignIn(SignInModel signInModel)
     {
         // валидация какае-то
         
-        var userSignInDetails = await _userRepository.GetByUserNameAsync(signInModel.UserName);
+        var userSignInDetails = await _userRepository.GetDetailsByUserNameAsync(signInModel.UserName);
         
         if (userSignInDetails is null)
         {
@@ -47,10 +48,12 @@ public class AuthService : IAuthService
             new GenerateTokenPayload
         {   
             UserId = userSignInDetails.UserId,
-            UserRole = userSignInDetails.UserRole,
+            UserRole = userSignInDetails.UserRole
         }, _authSettings.Internal);
         
         var refreshToken = AuthTokenGenerator.GenerateRefreshToken();
+        
+        // сохранить refreshToken : userId в redis 
         
         return new AuthTokenModel
         {

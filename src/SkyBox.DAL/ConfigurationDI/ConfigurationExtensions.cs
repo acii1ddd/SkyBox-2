@@ -20,7 +20,6 @@ public static class ConfigurationExtensions
         services.AddAutoMapper(config =>
             config.AddMaps(typeof(StorageFileProfile).Assembly)
         );
-
         return services;
     }
 }

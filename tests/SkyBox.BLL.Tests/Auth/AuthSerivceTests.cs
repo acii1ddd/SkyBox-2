@@ -47,7 +47,7 @@ public class AuthSerivceTests
         };
         
         _userRepositoryMock
-            .Setup(x => x.GetByUserNameAsync(signInModel.UserName))
+            .Setup(x => x.GetDetailsByUserNameAsync(signInModel.UserName))
             .ReturnsAsync((UserSignInDetails?) null);
         
         // Act
@@ -79,7 +79,7 @@ public class AuthSerivceTests
         };
         
         _userRepositoryMock
-            .Setup(x => x.GetByUserNameAsync(signInModel.UserName))
+            .Setup(x => x.GetDetailsByUserNameAsync(signInModel.UserName))
             .ReturnsAsync(userSignInDetails);
 
         _passwordHashServiceMock
@@ -115,7 +115,7 @@ public class AuthSerivceTests
         };
         
         _userRepositoryMock
-            .Setup(x => x.GetByUserNameAsync(signInModel.UserName))
+            .Setup(x => x.GetDetailsByUserNameAsync(signInModel.UserName))
             .ReturnsAsync(userSignInDetails);
 
         _passwordHashServiceMock

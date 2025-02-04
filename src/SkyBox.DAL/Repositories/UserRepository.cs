@@ -19,11 +19,20 @@ public class UserRepository : IUserRepository
     }
 
     // UserName should be unique
-    public async Task<UserSignInDetails?> GetByUserNameAsync(string userName)
+    public async Task<UserSignInDetails?> GetDetailsByUserNameAsync(string userName)
     {
         return _mapper.Map<UserSignInDetails>(await _context.Users
             .AsNoTracking()
             .Where(x => x.UserName == userName)
+            .FirstOrDefaultAsync()
+        );
+    }
+
+    public async Task<UserJwtDetails?> GetDetailsByUserIdAsync(Guid userId)
+    {
+        return _mapper.Map<UserJwtDetails>(await _context.Users
+            .AsNoTracking()
+            .Where(x => x.Id == userId)
             .FirstOrDefaultAsync()
         );
     }
